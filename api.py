@@ -169,11 +169,11 @@ def customApt(fos, name):
     else:
         return os.popen("docker build -t " + str(name).lower()  + " " + path).read()
 
-@app.route('/downloadContainer/<containerName>', methods=["GET"])
-def downloadContainer(containerName):
-    command = "docker export " + str(containerName)  + " > " + str(containerName) + ".tar"
+@app.route('/downloadImage/<imageName>', methods=["GET"])
+def downloadImage(imageName):
+    command = "docker save " + str(imageName)  + " > " + str(imageName) + ".tar"
     #command = "docker export soluco > soluco.tar"
-    path = str(containerName) + ".tar"
+    path = str(imageName) + ".tar"
     os.popen(command).read()
     return send_file(path, as_attachment=True)
 
