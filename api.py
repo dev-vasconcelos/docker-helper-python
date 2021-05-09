@@ -87,7 +87,7 @@ def exeContainer():
     name = request.args.get('name', default = "000", type = str)
     
     if ( str(name) != "000"):
-        command = 'docker exec ' + str(name)
+        command = 'docker exec -t ' + str(name)
 
     command += ' "' + str(commandContainer) + '"'
     print(command)
@@ -140,7 +140,8 @@ def getSize():
 #"packages": [{"name": "vim"}, {"name": "curl"}],
 #"imageFrom" : "ubuntu:latest",
 #"containerName" : "solucaodahjorao",
-#"autorun": false
+#"autorun": false,
+#"custom": [{"name":"run", "value":"echo 'sou lindo oi'"}]
 #}
 
 @app.route('/customApt/<fos>/<name>', methods=["POST"])
@@ -162,7 +163,10 @@ def customApt(fos, name):
 
         for package in request.json["packages"]:
             ff.write('RUN apt install -y ' + package['name'] + '\n')
-    
+        if ( request.json['custom'] ): 
+            for custom in request.json['custom']:
+                ff.write(str(custom['name']).upper() + ' ' + custom['value'])
+
     if (req["autorun"]):
         os.popen("docker build -t " + str(name).lower()  + " " + path).read()
         return os.popen("docker run -td --name " + str(req["containerName"]) + " " + str(name).lower()).read()
