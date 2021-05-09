@@ -138,7 +138,9 @@ def getSize():
 
 #{
 #"packages": [{"name": "vim"}, {"name": "curl"}],
-#"imageFrom" : "ubuntu:latest"
+#"imageFrom" : "ubuntu:latest",
+#"containerName" : "solucaodahjorao",
+#"autorun": false
 #}
 
 @app.route('/customApt/<fos>/<name>', methods=["POST"])
