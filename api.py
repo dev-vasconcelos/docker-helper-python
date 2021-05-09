@@ -121,4 +121,19 @@ def uploadDockerfile():
 
     return os.popen('docker images | grep ' + str(imageName).lower()).read()
 
+@app.route('/deleteEverything', methods=["DELETE"])
+def deleteEverything():
+    return os.popen('docker system prune --force').read()
+
+@app.route('/unused/<option>', methods=["DELETE"])
+def pruneUnused(option):
+    if("image" in option):
+        return os.popen('docker image prune --force').read()
+    elif("container" in option):
+        return os.popen('docker container prune --force').read()
+
+@app.route('/size', methods=["GET"])
+def getSize():
+    return os.popen('docker system df').read()
+
 app.run(debug=True)
