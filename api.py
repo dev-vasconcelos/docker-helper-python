@@ -136,4 +136,31 @@ def pruneUnused(option):
 def getSize():
     return os.popen('docker system df').read()
 
+#{
+#"packages": [{"name": "vim"}, {"name": "curl"}],
+#"imageFrom" : "ubuntu:latest"
+#}
+
+@app.route('/customApt/<fos>/<name>', methods=["POST"])
+def customApt(fos, name):
+    req = request.json
+    pathFile = app.config['UPLOAD_FOLDER'] + "/" + name + "/Dockerfile"
+    path = app.config['UPLOAD_FOLDER'] + "/" + name
+
+    if (not os.path.exists(pathFile)):
+        os.system("mkdir -p " + str(path))
+        op = "w+"
+    else:
+        op = "a+"
+    
+    
+    with open(pathFile, op) as ff:
+        ff.write('FROM ' + request.json["imageFrom"]  + '\n' )
+        ff.write('RUN apt update -y \n' )
+
+        for package in request.json["packages"]:
+            ff.write('RUN apt install -y ' + package['name'] + '\n')
+
+    return os.popen("docker build -t " + str(name).lower()  + " " + path).read()
+
 app.run(debug=True)
