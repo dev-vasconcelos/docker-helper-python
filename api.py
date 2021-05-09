@@ -1,9 +1,18 @@
 import flask
 import os
-from flask import request
+from flask import request, flash, Flask, redirect, url_for, send_from_directory
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = './pastaArquivos'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'dockerfile', ''}
 
 app = flask.Flask(__name__)
+
 app.config["DEBUG"]
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.secret_key = 'super secret key'
+app.config['SESSION_TYPE'] = 'filesystem'
+
 
 @app.route('/hellothere', methods=["GET"])
 def helloThere():
@@ -83,5 +92,33 @@ def exeContainer():
     command += ' "' + str(commandContainer) + '"'
     print(command)
     return os.popen(command).read()
+
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/dockerfile', methods=["GET", "POST"])
+def uploadDockerfile():
+    imageName = request.form["imageName"]
+    path = app.config['UPLOAD_FOLDER'] + "/" + imageName
+
+    if 'file' not in request.files:
+        flash('No file sent')
+        return 'No file'
+
+    file = request.files['file']
+
+    if file.filename == '':
+        flash('No file')
+        return 'No file'
+
+    filename = secure_filename(file.filename)
+    os.system("mkdir -p " + path)
+    file.save(os.path.join(path, filename))
+    #return redirect(url_for('uploaded_file', filename=filename))
+
+    os.system("docker build -t " + str(imageName).lower()  + " " + path)
+
+    return os.popen('docker images | grep ' + str(imageName).lower()).read()
 
 app.run(debug=True)
