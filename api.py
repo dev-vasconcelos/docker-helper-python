@@ -1,6 +1,6 @@
 import flask
 import os
-from flask import request, flash, Flask, redirect, url_for, send_from_directory
+from flask import request, flash, Flask, redirect, url_for, send_from_directory, send_file
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = './pastaArquivos'
@@ -168,5 +168,14 @@ def customApt(fos, name):
         return os.popen("docker run -td --name " + str(req["containerName"]) + " " + str(name).lower()).read()
     else:
         return os.popen("docker build -t " + str(name).lower()  + " " + path).read()
+
+@app.route('/downloadContainer/<containerName>', methods=["GET"])
+def downloadContainer(containerName):
+    command = "docker export " + str(containerName)  + " > " + str(containerName) + ".tar"
+    #command = "docker export soluco > soluco.tar"
+    path = str(containerName) + ".tar"
+    os.popen(command).read()
+    return send_file(path, as_attachment=True)
+
 
 app.run(debug=True)
