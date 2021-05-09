@@ -160,7 +160,11 @@ def customApt(fos, name):
 
         for package in request.json["packages"]:
             ff.write('RUN apt install -y ' + package['name'] + '\n')
-
-    return os.popen("docker build -t " + str(name).lower()  + " " + path).read()
+    
+    if (req["autorun"]):
+        os.popen("docker build -t " + str(name).lower()  + " " + path).read()
+        return os.popen("docker run -td --name " + str(req["containerName"]) + " " + str(name).lower()).read()
+    else:
+        return os.popen("docker build -t " + str(name).lower()  + " " + path).read()
 
 app.run(debug=True)
