@@ -181,5 +181,8 @@ def downloadImage(imageName):
     os.popen(command).read()
     return send_file(path, as_attachment=True)
 
+@app.route('/findImageApp' , methods = ["GET"])
+def findImageForApp():
+    return "pass"
 
 app.run(debug=True)
